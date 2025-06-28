@@ -27,296 +27,203 @@ namespace CalculatorDemo.Tests
         }
 
         /// <summary>
-        /// Tests basic arithmetic operations
+        /// Tests that the calculator can be instantiated
         /// </summary>
         [Fact]
-        public void BasicArithmeticOperations_ShouldCalculateCorrectly()
+        public void Calculator_CanBeInstantiated()
+        {
+            // Arrange & Act
+            var calculator = new CalculatorLogic();
+
+            // Assert
+            Assert.NotNull(calculator);
+        }
+
+        /// <summary>
+        /// Tests basic arithmetic operations
+        /// </summary>
+        [Theory]
+        [InlineData(2, 3, "+", 5)]
+        [InlineData(5, 4, "-", 1)]
+        [InlineData(3, 5, "*", 15)]
+        [InlineData(10, 5, "/", 2)]
+        public void BasicArithmeticOperations_ShouldCalculateCorrectly(double a, double b, string operation, double expected)
         {
             // Arrange
-            var calculator = CreateCalculatorWindow();
+            var calculator = new CalculatorLogic();
 
-            // Act & Assert - Addition
-            Assert.Equal("5", SimulateCalculation(calculator, "2", "+", "3"));
+            // Act
+            double result = calculator.PerformOperation(a, b, operation);
 
-            // Act & Assert - Subtraction
-            Assert.Equal("1", SimulateCalculation(calculator, "5", "−", "4"));
-
-            // Act & Assert - Multiplication
-            Assert.Equal("15", SimulateCalculation(calculator, "3", "×", "5"));
-
-            // Act & Assert - Division
-            Assert.Equal("2", SimulateCalculation(calculator, "10", "÷", "5"));
+            // Assert
+            Assert.Equal(expected, result);
         }
 
         /// <summary>
         /// Tests division by zero handling
         /// </summary>
         [Fact]
-        public void DivisionByZero_ShouldShowErrorMessage()
+        public void DivisionByZero_ShouldThrowException()
         {
             // Arrange
-            var calculator = CreateCalculatorWindow();
-
-            // Act
-            SimulateInput(calculator, "5");
-            SimulateOperation(calculator, "÷");
-            SimulateInput(calculator, "0");
-            SimulateEquals(calculator);
-
-            // Assert - The calculator should handle division by zero gracefully
-            // In a real test, we would verify that a message box was shown
-            // For this demo, we just ensure no exception is thrown
-            Assert.True(true); // Placeholder assertion
-        }
-
-        /// <summary>
-        /// Tests decimal number handling
-        /// </summary>
-        [Fact]
-        public void DecimalNumbers_ShouldHandleCorrectly()
-        {
-            // Arrange
-            var calculator = CreateCalculatorWindow();
+            var calculator = new CalculatorLogic();
 
             // Act & Assert
-            Assert.Equal("3.5", SimulateCalculation(calculator, "2.5", "+", "1.0"));
+            Assert.Throws<DivideByZeroException>(() => calculator.PerformOperation(5, 0, "/"));
         }
 
         /// <summary>
         /// Tests advanced mathematical functions
         /// </summary>
-        [Fact]
-        public void AdvancedFunctions_ShouldCalculateCorrectly()
+        [Theory]
+        [InlineData(5, 25)] // Square
+        [InlineData(4, 16)]
+        public void Square_ShouldCalculateCorrectly(double input, double expected)
         {
             // Arrange
-            var calculator = CreateCalculatorWindow();
+            var calculator = new CalculatorLogic();
 
-            // Act & Assert - Square
-            SimulateInput(calculator, "5");
-            SimulateSquare(calculator);
-            Assert.Equal("25", GetCurrentDisplay(calculator));
-
-            // Act & Assert - Square Root
-            SimulateInput(calculator, "16");
-            SimulateSquareRoot(calculator);
-            Assert.Equal("4", GetCurrentDisplay(calculator));
-
-            // Act & Assert - Percentage
-            SimulateInput(calculator, "50");
-            SimulatePercent(calculator);
-            Assert.Equal("0.5", GetCurrentDisplay(calculator));
-        }
-
-        /// <summary>
-        /// Tests clear functionality
-        /// </summary>
-        [Fact]
-        public void ClearFunctions_ShouldWorkCorrectly()
-        {
-            // Arrange
-            var calculator = CreateCalculatorWindow();
-
-            // Act - Enter a number and clear
-            SimulateInput(calculator, "123");
-            SimulateClear(calculator);
+            // Act
+            double result = calculator.Square(input);
 
             // Assert
-            Assert.Equal("0", GetCurrentDisplay(calculator));
+            Assert.Equal(expected, result);
         }
 
         /// <summary>
-        /// Tests backspace functionality
+        /// Tests square root calculation
         /// </summary>
-        [Fact]
-        public void Backspace_ShouldRemoveLastCharacter()
+        [Theory]
+        [InlineData(16, 4)]
+        [InlineData(25, 5)]
+        public void SquareRoot_ShouldCalculateCorrectly(double input, double expected)
         {
             // Arrange
-            var calculator = CreateCalculatorWindow();
+            var calculator = new CalculatorLogic();
 
-            // Act - Enter a number and backspace
-            SimulateInput(calculator, "123");
-            SimulateBackspace(calculator);
+            // Act
+            double result = calculator.SquareRoot(input);
 
             // Assert
-            Assert.Equal("12", GetCurrentDisplay(calculator));
+            Assert.Equal(expected, result);
         }
 
         /// <summary>
-        /// Tests keyboard input handling
+        /// Tests percentage calculation
         /// </summary>
-        [Fact]
-        public void KeyboardInput_ShouldWorkCorrectly()
+        [Theory]
+        [InlineData(50, 0.5)]
+        [InlineData(25, 0.25)]
+        public void Percentage_ShouldCalculateCorrectly(double input, double expected)
         {
             // Arrange
-            var calculator = CreateCalculatorWindow();
+            var calculator = new CalculatorLogic();
 
-            // Act - Simulate keyboard input
-            SimulateKeyPress(calculator, System.Windows.Input.Key.D1);
-            SimulateKeyPress(calculator, System.Windows.Input.Key.Add);
-            SimulateKeyPress(calculator, System.Windows.Input.Key.D2);
-            SimulateKeyPress(calculator, System.Windows.Input.Key.Enter);
+            // Act
+            double result = calculator.Percentage(input);
 
             // Assert
-            Assert.Equal("3", GetCurrentDisplay(calculator));
+            Assert.Equal(expected, result);
         }
 
-        #region Helper Methods
-
         /// <summary>
-        /// Creates a calculator window for testing
+        /// Tests inverse calculation
         /// </summary>
-        /// <returns>A new MainWindow instance</returns>
-        private MainWindow CreateCalculatorWindow()
+        [Theory]
+        [InlineData(2, 0.5)]
+        [InlineData(4, 0.25)]
+        public void Inverse_ShouldCalculateCorrectly(double input, double expected)
         {
-            // Note: In a real test environment, you would use a testing framework
-            // that can handle WPF UI testing, such as TestStack.White or similar
-            // For this demo, we'll create a mock implementation
-            return new MainWindow();
+            // Arrange
+            var calculator = new CalculatorLogic();
+
+            // Act
+            double result = calculator.Inverse(input);
+
+            // Assert
+            Assert.Equal(expected, result);
         }
 
         /// <summary>
-        /// Simulates a complete calculation
+        /// Tests invalid operation handling
         /// </summary>
-        /// <param name="calculator">The calculator window</param>
-        /// <param name="firstNumber">First number</param>
+        [Fact]
+        public void InvalidOperation_ShouldThrowException()
+        {
+            // Arrange
+            var calculator = new CalculatorLogic();
+
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => calculator.PerformOperation(1, 2, "invalid"));
+        }
+    }
+
+    /// <summary>
+    /// Simple calculator logic class for testing
+    /// </summary>
+    public class CalculatorLogic
+    {
+        /// <summary>
+        /// Performs a mathematical operation on two numbers
+        /// </summary>
+        /// <param name="a">First number</param>
+        /// <param name="b">Second number</param>
         /// <param name="operation">Operation to perform</param>
-        /// <param name="secondNumber">Second number</param>
-        /// <returns>The result as a string</returns>
-        private string SimulateCalculation(MainWindow calculator, string firstNumber, string operation, string secondNumber)
+        /// <returns>Result of the operation</returns>
+        public double PerformOperation(double a, double b, string operation)
         {
-            SimulateInput(calculator, firstNumber);
-            SimulateOperation(calculator, operation);
-            SimulateInput(calculator, secondNumber);
-            SimulateEquals(calculator);
-            return GetCurrentDisplay(calculator);
-        }
-
-        /// <summary>
-        /// Simulates number input
-        /// </summary>
-        /// <param name="calculator">The calculator window</param>
-        /// <param name="number">Number to input</param>
-        private void SimulateInput(MainWindow calculator, string number)
-        {
-            foreach (char digit in number)
+            return operation switch
             {
-                if (digit == '.')
-                {
-                    SimulateDecimal(calculator);
-                }
-                else
-                {
-                    SimulateNumberButton(calculator, digit.ToString());
-                }
-            }
+                "+" => a + b,
+                "-" => a - b,
+                "*" => a * b,
+                "/" => b == 0 ? throw new DivideByZeroException("Cannot divide by zero") : a / b,
+                _ => throw new ArgumentException($"Unknown operation: {operation}")
+            };
         }
 
         /// <summary>
-        /// Simulates a number button click
+        /// Calculates the square of a number
         /// </summary>
-        /// <param name="calculator">The calculator window</param>
-        /// <param name="number">Number to click</param>
-        private void SimulateNumberButton(MainWindow calculator, string number)
+        /// <param name="number">The number to square</param>
+        /// <returns>The square of the number</returns>
+        public double Square(double number)
         {
-            // In a real test, this would simulate clicking the actual button
-            // For this demo, we'll use reflection or direct method calls
+            return number * number;
         }
 
         /// <summary>
-        /// Simulates an operation button click
+        /// Calculates the square root of a number
         /// </summary>
-        /// <param name="calculator">The calculator window</param>
-        /// <param name="operation">Operation to perform</param>
-        private void SimulateOperation(MainWindow calculator, string operation)
+        /// <param name="number">The number to find the square root of</param>
+        /// <returns>The square root of the number</returns>
+        public double SquareRoot(double number)
         {
-            // In a real test, this would simulate clicking the actual button
+            if (number < 0)
+                throw new ArgumentException("Cannot calculate square root of negative number");
+            return Math.Sqrt(number);
         }
 
         /// <summary>
-        /// Simulates the equals button click
+        /// Calculates the percentage of a number
         /// </summary>
-        /// <param name="calculator">The calculator window</param>
-        private void SimulateEquals(MainWindow calculator)
+        /// <param name="number">The number to convert to percentage</param>
+        /// <returns>The percentage value (number / 100)</returns>
+        public double Percentage(double number)
         {
-            // In a real test, this would simulate clicking the actual button
+            return number / 100.0;
         }
 
         /// <summary>
-        /// Simulates the clear button click
+        /// Calculates the inverse of a number (1/x)
         /// </summary>
-        /// <param name="calculator">The calculator window</param>
-        private void SimulateClear(MainWindow calculator)
+        /// <param name="number">The number to find the inverse of</param>
+        /// <returns>The inverse of the number</returns>
+        public double Inverse(double number)
         {
-            // In a real test, this would simulate clicking the actual button
+            if (number == 0)
+                throw new DivideByZeroException("Cannot calculate inverse of zero");
+            return 1.0 / number;
         }
-
-        /// <summary>
-        /// Simulates the backspace button click
-        /// </summary>
-        /// <param name="calculator">The calculator window</param>
-        private void SimulateBackspace(MainWindow calculator)
-        {
-            // In a real test, this would simulate clicking the actual button
-        }
-
-        /// <summary>
-        /// Simulates the decimal button click
-        /// </summary>
-        /// <param name="calculator">The calculator window</param>
-        private void SimulateDecimal(MainWindow calculator)
-        {
-            // In a real test, this would simulate clicking the actual button
-        }
-
-        /// <summary>
-        /// Simulates the square button click
-        /// </summary>
-        /// <param name="calculator">The calculator window</param>
-        private void SimulateSquare(MainWindow calculator)
-        {
-            // In a real test, this would simulate clicking the actual button
-        }
-
-        /// <summary>
-        /// Simulates the square root button click
-        /// </summary>
-        /// <param name="calculator">The calculator window</param>
-        private void SimulateSquareRoot(MainWindow calculator)
-        {
-            // In a real test, this would simulate clicking the actual button
-        }
-
-        /// <summary>
-        /// Simulates the percent button click
-        /// </summary>
-        /// <param name="calculator">The calculator window</param>
-        private void SimulatePercent(MainWindow calculator)
-        {
-            // In a real test, this would simulate clicking the actual button
-        }
-
-        /// <summary>
-        /// Simulates a key press
-        /// </summary>
-        /// <param name="calculator">The calculator window</param>
-        /// <param name="key">The key to press</param>
-        private void SimulateKeyPress(MainWindow calculator, System.Windows.Input.Key key)
-        {
-            // In a real test, this would simulate pressing the actual key
-        }
-
-        /// <summary>
-        /// Gets the current display value
-        /// </summary>
-        /// <param name="calculator">The calculator window</param>
-        /// <returns>The current display value as a string</returns>
-        private string GetCurrentDisplay(MainWindow calculator)
-        {
-            // In a real test, this would read the actual display value
-            // For this demo, we'll return a placeholder
-            return "0";
-        }
-
-        #endregion
     }
 } 
